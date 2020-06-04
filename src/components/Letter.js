@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 
 class Letter extends Component {
-    
+
+    letterClicked = () => {
+        if(this.props.func) this.props.func(this.props.letter)
+    }
+
     render() {
         return(
-            <div>
-                <div className="letter">a</div>
-            </div>
+                <span className={this.props.className} onClick={this.letterClicked}>{this.props.letter}</span>
         )
     }
     }
