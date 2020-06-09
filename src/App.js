@@ -12,13 +12,13 @@ const IMG_URL = "https://cdn.pixabay.com/photo/2020/04/13/09/02/hangman-5037379_
 const INIT_POINTS = 100
 
 
+let currWordIndex = 0    // Global Var
+
 const gameWords = [
-  {word: "Aladdin", hint: "Arabian Nights" },
-  {word: "Copacabana", hint: "Her name was Lola" },
-  {word: "Joey", hint: "Well, the fridge broke, so I had to eat everything." }
+  { word: "Aladdin", hint: "Arabian Nights" },
+  { word: "Copacabana", hint: "Her name was Lola" },
+  { word: "Joey", hint: "Well, the fridge broke, so I had to eat everything." }
 ]
-
-
 
 class App extends Component {
 
@@ -26,31 +26,32 @@ class App extends Component {
     super()
     this.state = {
       lettersStatus: this.generateLetterStatuses(),
-      solution: gameWords[Math.floor(Math.random() * gameWords.length)],
+      solution: gameWords[currWordIndex % gameWords.length],
       showHint: false,
       score: INIT_POINTS,
       message: ""
     }
-
   }
 
-  showHint = () =>  {
+  showHint = () => {
     this.setState({
       showHint: true
     })
   }
 
   checkWin() {
-    console.log(this.state.lettersStatus)
-    for(let char of this.state.solution.word) {
-      if(!this.state.lettersStatus[char.toUpperCase()]) return;
+    for (let char of this.state.solution.word) {
+      if (!this.state.lettersStatus[char.toUpperCase()]) return;
     }
     this.setState({
-      message: `Congratulations!!!`
+      message: <div><p>Congratulations!!!</p>
+        <button onClick={this.restart}>Restart</button>
+      </div>
     })
   }
 
   restart = () => {
+    currWordIndex = currWordIndex + 1
     this.setState({
       lettersStatus: this.generateLetterStatuses(),
       solution: gameWords[Math.floor(Math.random() * gameWords.length)],
@@ -59,29 +60,36 @@ class App extends Component {
       message: ""
     })
   }
-  
+
+
   gameEndedLose = () => {
     const secretWord = this.state.solution.word
     this.setState({
-    message: <div><p>You Lost :( The secret word is {secretWord}</p>
-             <button onClick={this.restart}>Restart</button>
-             </div>
+      message: <div><p>You Lost :( The secret word is {secretWord}</p>
+        <button onClick={this.restart}>Restart</button>
+      </div>
     })
   }
 
 
   selectLetter = (letter) => {
-    if (!this.state.lettersStatus[letter] && this.state.score>0) {
+
+    if (!this.state.lettersStatus[letter] && this.state.score > 0) {
+
       let tempLettersStatus = Object.assign({}, this.state.lettersStatus)
       tempLettersStatus[letter] = true
+
       this.setState({
-        score: (this.state.solution.word.includes(letter.toUpperCase()) ||  this.state.solution.word.includes(letter.toLowerCase())  )
-               ? this.state.score + DEC_VALUE : this.state.score - INC_VALUE,
+        score: (this.state.solution.word.includes(letter.toUpperCase()) || 
+                                   this.state.solution.word.includes(letter.toLowerCase()))
+          ? this.state.score + DEC_VALUE : this.state.score - INC_VALUE,
         lettersStatus: tempLettersStatus
-      }, function() {
-        if(this.state.score<=0) this.gameEndedLose()
+      }, function () {
+        if (this.state.score <= 0) this.gameEndedLose()
         this.checkWin();
       })
+
+
     }
   }
 
@@ -98,11 +106,11 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Score  score={this.state.score} /> <Solution flag={this.state.showHint} func={this.showHint} lettersStatus={this.state.lettersStatus} solution={this.state.solution} />
+        <Score score={this.state.score} /> <Solution flag={this.state.showHint} func={this.showHint} lettersStatus={this.state.lettersStatus} solution={this.state.solution} />
         <Letters func={this.selectLetter} lettersStatus={this.state.lettersStatus}>
         </Letters>
-        <EndGame message={this.state.message}/>
-        <img className="img"  alt="Hangman Pic" src={IMG_URL}></img>
+        <EndGame message={this.state.message} />
+        <img className="img" alt="Hangman Pic" src={IMG_URL}></img>
       </div>
     );
   }
